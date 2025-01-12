@@ -7,5 +7,5 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Button className="bg-gray-700"><p className="min-w-11 text-opacity-0">Hello, world!</p></Button>
     
-  </StrictMode>,
+  </StrictMode>
 )
