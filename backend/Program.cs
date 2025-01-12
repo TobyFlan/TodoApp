@@ -3,21 +3,22 @@ using backend.DB;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Define CORS policy name
+var MyAllowSpecificOrigins = "MyAllowSpecificOrigins";
 
-// add CORS policy to allow all origins
+// Add services to the container.
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy(name: MyAllowSpecificOrigins, policy =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173",  // your frontend URL
+                            "http://www.contoso.com")  // another allowed origin (optional)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
-// add Swagger for API documentation and testing
+// Add Swagger for API documentation and testing
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -25,7 +26,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-app.UseCors();
+
+// Apply CORS policy
+app.UseCors(MyAllowSpecificOrigins);
 
 if (app.Environment.IsDevelopment())
 {
@@ -34,13 +37,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapGet("/", () => "Hello World!");
-
-
 app.MapGet("/todos", () => TodoDB.GetTodos());
 app.MapGet("/todos/{id}", (int id) => TodoDB.GetTodo(id));
 app.MapPost("/todos", (TodoItem todo) => TodoDB.AddTodo(todo));
 app.MapPut("/todos/{id}", (int id, TodoItem todo) => TodoDB.UpdateTodo(id, todo));
 app.MapDelete("/todos/{id}", (int id) => TodoDB.DeleteTodo(id));
-
 
 app.Run();
