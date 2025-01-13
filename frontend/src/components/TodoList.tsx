@@ -14,17 +14,18 @@ const TodoList = () => {
         const fetchTodos = async () => {
             const data = await getTodos();
             setTodos(data);
+            console.log(data);
         };
         fetchTodos();
     }, []);
 
     // handler functions for CRUD operations
     const handleDelete =  (id: number) => {
-        setTodos(todos.filter((todo: Todo) => todo.Id !== id));        
+        setTodos(todos.filter((todo: Todo) => todo.id !== id));        
     };
 
     const handleUpdate = (id: number, todo: Todo) => {
-        setTodos(todos.map((item: Todo) => (item.Id === id ? todo : item)));
+        setTodos(todos.map((item: Todo) => (item.id === id ? todo : item)));
     };
 
     return (
@@ -33,7 +34,7 @@ const TodoList = () => {
             <h1 className="text-2xl font-bold mb-4">Todo List</h1>
             {todos.map((todo) => (
                 <TodoItem 
-                    key={todo.Id} 
+                    key={todo.id} 
                     todo={todo} 
                     onDelete={handleDelete}
                     onUpdate={handleUpdate}
@@ -53,19 +54,21 @@ const TodoItem = ({ todo, onDelete, onUpdate }: { todo: Todo, onDelete: (id: num
     const handleToggle = async () => {
         const newStatus = !isCompleted;
         setIsCompleted(newStatus);
-        await updateTodo(todo.Id, { ...todo, isDone: newStatus });
-        onUpdate(todo.Id, { ...todo, isDone: newStatus });        
+        console.log(todo);
+        console.log(todo.id);
+        await updateTodo(todo.id, { ...todo, isDone: newStatus });
+        onUpdate(todo.id, { ...todo, isDone: newStatus });        
     };
 
     const handleDelete = async () => {
-        await deleteTodo(todo.Id);
-        onDelete(todo.Id);
+        await deleteTodo(todo.id);
+        onDelete(todo.id);
     };
 
     return (
         <Card className="mb-4">
             <CardHeader>
-            <CardTitle>{todo.Title}</CardTitle>
+            <CardTitle>{todo.title}</CardTitle>
             </CardHeader>
             <CardContent>
             <div className="flex items-center space-x-2">

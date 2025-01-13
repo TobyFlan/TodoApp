@@ -3,8 +3,8 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:5182';
 
 interface Todo {
-    Id: number;
-    Title: string;
+    id: number;
+    title: string;
     isDone: boolean;
 }
 
