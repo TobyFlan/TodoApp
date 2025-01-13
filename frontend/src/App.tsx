@@ -29,8 +29,8 @@ export default function App() {
     };
 
     return (
-        <div className="App">
-            <header className="App-header">
+        <div className="bg-[#1e1e2e] min-h-screen text-[#cdd6f4]">
+            <header>
                 <h1 className="text-3xl font-bold mb-4">Todo List</h1>
                 <TodoForm onAddTodo={handleAddTodo} />
                 <TodoList

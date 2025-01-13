@@ -1,5 +1,5 @@
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { Todo } from '@/services/todoApi';
@@ -50,23 +50,34 @@ const TodoItem = ({
     };
 
     return (
-        <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>{todo.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center space-x-2">
-                    <Switch checked={todo.isDone} onCheckedChange={handleToggle} />
-                    <span>{todo.isDone ? 'Completed' : 'Pending'}</span>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </Button>
-            </CardFooter>
-        </Card>
+        <Card className="mb-4 bg-[#1e1e2e] border-2 border-[#89b4fa]">
+        <CardHeader>
+          <h3 className="text-lg font-semibold text-[#cdd6f4]">{todo.title}</h3>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={todo.isDone}
+              onCheckedChange={() => handleToggle()}
+              className="data-[state=checked]:bg-[#a6e3a1]"
+            />
+            <span className="text-[#cdd6f4]">
+              {todo.isDone ? 'Completed' : 'Pending'}
+            </span>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleDelete()}
+            className="bg-[#f38ba8] text-[#1e1e2e] hover:bg-[#eba0ac]"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </Button>
+        </CardFooter>
+      </Card>
     );
 };
 
