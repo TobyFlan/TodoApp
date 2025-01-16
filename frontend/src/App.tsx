@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import TodoList from '@/components/TodoList';
 import TodoForm from '@/components/TodoForm';
+import LoginForm from '@/components/LoginForm';
+import ProtectedButton from '@/components/ProtectedTest';
 import { getTodos, Todo } from '@/services/todoApi';
 
 export default function App() {
@@ -31,6 +33,7 @@ export default function App() {
     return (
         <div className="bg-[#1e1e2e] min-h-screen text-[#cdd6f4]">
             <header>
+                <LoginForm />
                 <h1 className="text-3xl font-bold mb-4">Todo List</h1>
                 <TodoForm onAddTodo={handleAddTodo} />
                 <TodoList
@@ -39,6 +42,8 @@ export default function App() {
                     onUpdateTodo={handleUpdateTodo}
                 />
             </header>
+
+            <ProtectedButton />
         </div>
     );
 }

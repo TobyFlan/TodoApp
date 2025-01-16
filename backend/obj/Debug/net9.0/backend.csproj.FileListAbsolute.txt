@@ -35,3 +35,11 @@ C:\Users\Toby\Code\TodoApp\backend\obj\Debug\net9.0\ref\backend.dll
 C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Toby\Code\TodoApp\backend\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll

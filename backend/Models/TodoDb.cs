@@ -1,4 +1,4 @@
-namespace backend.DB;
+namespace backend.Models;
 
 public record TodoItem {
     public int Id { get; set; }
