@@ -128,3 +128,60 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Ignore build results
+bin/
+obj/
+backend/bin/
+backend/obj/
+
+# Ignore user-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.vspscc
+
+# Ignore generated files by Visual Studio for debugging
+.vs/
+.vscode/
+.idea/
+
+# Ignore configuration files that contain secrets (e.g., appsettings.json)
+appsettings.Development.json
+appsettings.json
+
+# Ignore database files (SQLite or other local databases)
+*.db
+*.db-wal
+*.db-shm
+
+# Ignore the NuGet package folder
+.nuget/
+
+# Ignore publish directories
+publish/
+
+# Ignore JetBrains Rider folders
+.idea/
+
+# Ignore other common files
+*.dll
+*.pdb
+*.exe
+*.bak
+*.log
+*.swp
+
+# Ignore EF Core Migrations (generated during development)
+Migrations/
+
+# Ignore ASP.NET Core certs
+https://docs.microsoft.com/en-us/aspnet/core/security/authorization/role-based-authorization?view=aspnetcore-5.0
+*.pfx
+
+# Ignore .NET Core tools folder
+tools/
+
+# Ignore the folder for the 'dotnet' tool
+packages/

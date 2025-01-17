@@ -1,11 +1,13 @@
 using Microsoft.OpenApi.Models;
 using backend.Models;
+using backend.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +50,11 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddAuthorization();
 
 
+// Link to the database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+
+
 var app = builder.Build();
 
 // Apply CORS policy
@@ -64,46 +71,86 @@ if (app.Environment.IsDevelopment())
 
 // Define JWT token generation
 app.MapPost("/auth/login",
-    [AllowAnonymous] (UserDto userDto) =>
-    {
-        // Example hardcoded user validation
-        if (userDto.Username == "admin" && userDto.Password == "admin")
-        {
-            var issuer = builder.Configuration["Jwt:Issuer"];
-            var audience = builder.Configuration["Jwt:Audience"];
-            var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+    async (UserDto userDto, AppDbContext db) => {
 
-            var tokenDescriptor = new SecurityTokenDescriptor {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, userDto.Username),
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Username == userDto.Username);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+        // need to hash the password in the future
+        if (user is null || user.PasswordHash != userDto.Password) return Results.Unauthorized();
 
-            return Results.Ok(new { Token = tokenHandler.WriteToken(token) });
-        }
+        var issuer = builder.Configuration["Jwt:Issuer"];
+        var audience = builder.Configuration["Jwt:Audience"];
+        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+
+        var tokenDescriptor = new SecurityTokenDescriptor {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, userDto.Username),
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return Results.Ok(new { Token = tokenHandler.WriteToken(token) });
+
 
         return Results.Unauthorized();
     }
 );
 
+// seede the database with some user data
+app.MapGet("/seed", async (AppDbContext db) => {
+    db.Users.Add(new User { Username = "admin", PasswordHash = "admin" });
+    await db.SaveChangesAsync();
+    return Results.Ok("Database seeded");
+});
 
 
+// main routes
 app.MapGet("/", () => "Hello World!");
-app.MapGet("/todos", () => TodoDB.GetTodos());
-app.MapGet("/todos/{id}", (int id) => TodoDB.GetTodo(id));
-app.MapPost("/todos", (TodoItem todo) => TodoDB.AddTodo(todo));
-app.MapPut("/todos/{id}", (int id, TodoItem todo) => TodoDB.UpdateTodo(id, todo));
-app.MapDelete("/todos/{id}", (int id) => TodoDB.DeleteTodo(id));
 
-// auth test route
+app.MapGet("/todos", async (AppDbContext db) => await db.Todos.ToListAsync());
+
+app.MapGet("/todos/{id}", async (int id, AppDbContext db) => {
+    var todo = await db.Todos.FindAsync(id);
+    if (todo is null) return Results.NotFound();
+    
+    return Results.Ok(todo);
+});
+
+app.MapPost("/todos", async (TodoItem todo, AppDbContext db) => {
+    todo.Id = db.Todos.Max(t => t.Id) + 1;
+    db.Todos.Add(todo);
+    await db.SaveChangesAsync();
+    return Results.Created($"/todos/{todo.Id}", todo);
+});
+
+app.MapPut("/todos/{id}", async (int id, TodoItem inputTodo, AppDbContext db) => {
+    var todo = await db.Todos.FindAsync(id);
+    if (todo is null) return Results.NotFound();
+
+    todo.Title = string.IsNullOrEmpty(inputTodo.Title) ? todo.Title : inputTodo.Title;
+    todo.IsDone = inputTodo.IsDone;
+
+    await db.SaveChangesAsync();
+    return Results.Ok(todo);
+});
+
+app.MapDelete("/todos/{id}", async (int id, AppDbContext db) => {
+    var todo = await db.Todos.FindAsync(id);
+    if (todo is null) return Results.NotFound();
+
+    db.Todos.Remove(todo);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+// auth dev test route
 app.MapGet("/jwt/test", () => {
     return Results.Ok("You are authorized");
 }).RequireAuthorization();
