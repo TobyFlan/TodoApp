@@ -4,59 +4,61 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { Todo } from '@/services/todoApi';
 import { deleteTodo, updateTodo } from '@/services/todoApi';
+import { useAuth } from '@/components/AuthContext';
 
 const TodoList = ({
     todos,
-    token,
     onDeleteTodo,
     onUpdateTodo,
 }: {
     todos: Todo[];
-    token: string | null;
     onDeleteTodo: (id: number) => void;
     onUpdateTodo: (id: number, updatedTodo: Todo) => void;
 }) => {
 
+  const { isAuthenticated } = useAuth();
 
-    return (
-      <div className="space-y-4">
-      {todos && todos.length > 0 ? (
-        todos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onDelete={onDeleteTodo}
-            onUpdate={onUpdateTodo}
-            token={token}
-          />
-        ))
+  if (!isAuthenticated) return null;
+
+
+  return (
+    <>
+      {todos.length > 0 ? (
+        <div className="container mx-auto p-4">
+          {todos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onDelete={onDeleteTodo}
+              onUpdate={onUpdateTodo}
+            />
+          ))}
+        </div>
       ) : (
-        <div className="text-center text-white">No todos found</div>
+        <div className="text-center text-gray-600">No todos found</div>
       )}
-    </div>
-    );
+    </>
+  );
 };
 
 const TodoItem = ({
     todo,
-    token,
     onDelete,
     onUpdate,
 }: {
     todo: Todo;
-    token: string | null;
     onDelete: (id: number) => void;
     onUpdate: (id: number, updatedTodo: Todo) => void;
 }) => {
     const handleToggle = async () => {
         const newStatus = !todo.isDone;
         const updatedTodo = { ...todo, isDone: newStatus };
-        await updateTodo(todo.id, updatedTodo, token);
+        await updateTodo(todo.id, updatedTodo);
         onUpdate(todo.id, updatedTodo);
     };
 
     const handleDelete = async () => {
-        await deleteTodo(todo.id, token);
+        await deleteTodo(todo.id);
         onDelete(todo.id);
     };
 

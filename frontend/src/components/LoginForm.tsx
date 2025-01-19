@@ -5,10 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+import { useAuth } from '@/components/AuthContext';
+
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState("");
+    const { isAuthenticated, login, logout } = useAuth();
 
     const handleLogin = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -21,7 +24,7 @@ const LoginForm = () => {
           });
           
           // Store the token in localStorage or sessionStorage
-          localStorage.setItem("token", response.data.token);
+          login(response.data.token);
           alert("Login successful!");
         } catch {
           setError("Invalid username or password");
@@ -29,13 +32,13 @@ const LoginForm = () => {
       };
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
+        logout();
         alert("Logged out");
     };
     
       return (
         <div className="mb-6">
-        {!localStorage.getItem("token") ? (
+        {!isAuthenticated ? (
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
               type="text"

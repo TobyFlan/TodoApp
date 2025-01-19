@@ -15,8 +15,6 @@ export default function TodoForm({ onAddTodo }: { onAddTodo: (todo: Todo) => voi
     const [title, setTitle] = useState('');
     const [isDone, setIsDone] = useState(false);
 
-    const token = localStorage.getItem('token');
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const newTodo: Todo = {
@@ -24,7 +22,7 @@ export default function TodoForm({ onAddTodo }: { onAddTodo: (todo: Todo) => voi
             title: title,
             isDone: isDone
         };
-        const createdTodo = await createTodo(newTodo, token);
+        const createdTodo = await createTodo(newTodo);
         onAddTodo(createdTodo);
         setTitle('');
         setIsDone(false);

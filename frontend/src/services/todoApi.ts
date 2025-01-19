@@ -1,87 +1,122 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:5182';
+const BASE_URL = "http://localhost:5182";
 
 interface Todo {
-    id: number;
-    title: string;
-    isDone: boolean;
+  id: number;
+  title: string;
+  isDone: boolean;
 }
 
-// get all todos
-const getTodos = async (token : string | null) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/todos`, {
-            headers: {
-                Authorization: `bearer ${token}`,
-            },
-        });
-        return response.data;
-    }
-    catch (error) {
-        console.error('Error:', error);
-    }
-};
 
-// get todo by id
-const getTodo = async (id: number, token: string | null) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/todos/${id}`, {
-            headers: {
-                Authorization: `bearer ${token}`,
-            },
-        });
-        return response.data;
-    }
-    catch (error) {
-        console.error('Error:', error);
-    }
-};
+  const getAuthToken = (): string | null => {
+    return localStorage.getItem("token");
+  };
 
-// create todo
-const createTodo = async (todo: Todo, token : string | null) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/todos`, todo, {
-            headers: {
-                Authorization: `bearer ${token}`,
-            },
-        });
-        return response.data;
+  const getTodos = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
     }
-    catch (error) {
-        console.error('Error:', error);
-    }
-};
 
-// update todo
-const updateTodo = async (id: number, todo: Todo, token : string | null) => {
     try {
-        const response = await axios.put(`${BASE_URL}/todos/${id}`, todo, {
-            headers: {
-                Authorization: `bearer ${token}`,
-            },
-        });
-        return response.data;
+      const response = await axios.get(`${BASE_URL}/todos`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+      throw error;
     }
-    catch (error) {
-        console.error('Error:', error);
-    }
-};
+  };
 
-// delete todo
-const deleteTodo = async (id: number, token : string | null) => {
+  const getTodo = async (id: number) => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
+    }
+
     try {
-        const response = await axios.delete(`${BASE_URL}/todos/${id}`, {
-            headers: {
-                Authorization: `bearer ${token}`,
-            }
-        });
-        return response.data;
+      const response = await axios.get(`${BASE_URL}/todos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching todo:", error);
+      throw error;
     }
-    catch (error) {
-        console.error('Error:', error);
+  };
+
+  const createTodo = async (todo: Todo) => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
     }
-};
+
+    try {
+      const response = await axios.post(`${BASE_URL}/todos`, todo, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating todo:", error);
+      throw error;
+    }
+  };
+
+  const updateTodo = async (id: number, todo: Todo) => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
+    }
+
+    try {
+      const response = await axios.put(`${BASE_URL}/todos/${id}`, todo, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating todo:", error);
+      throw error;
+    }
+  };
+
+  const deleteTodo = async (id: number) => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
+    }
+
+    try {
+      const response = await axios.delete(`${BASE_URL}/todos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+      throw error;
+    }
+  };
+
+
+  export {
+    getTodos,
+    getTodo,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+  };
+
 
 export type { Todo };
-export { getTodos, getTodo, createTodo, updateTodo, deleteTodo };
+
