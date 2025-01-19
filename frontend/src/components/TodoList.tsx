@@ -1,5 +1,5 @@
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { Todo } from '@/services/todoApi';
@@ -19,23 +19,21 @@ const TodoList = ({
 
 
     return (
-        <>
-            {todos ? (
-                <div className="container mx-auto p-4">
-                    {todos.map((todo) => (
-                        <TodoItem
-                            key={todo.id}
-                            todo={todo}
-                            onDelete={onDeleteTodo}
-                            onUpdate={onUpdateTodo}
-                            token={token}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center text-[#cdd6f4]">No todos found</div>
-            )}
-        </>
+      <div className="space-y-4">
+      {todos && todos.length > 0 ? (
+        todos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onDelete={onDeleteTodo}
+            onUpdate={onUpdateTodo}
+            token={token}
+          />
+        ))
+      ) : (
+        <div className="text-center text-white">No todos found</div>
+      )}
+    </div>
     );
 };
 
@@ -63,33 +61,31 @@ const TodoItem = ({
     };
 
     return (
-        <Card className="mb-4 bg-[#1e1e2e] border-2 border-[#89b4fa]">
-        <CardHeader>
-          <h3 className="text-lg font-semibold text-[#cdd6f4]">{todo.title}</h3>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-2">
+      <Card className={`mb-4 transition-all duration-300 ease-in-out ${
+        todo.isDone 
+          ? 'bg-green-100 bg-opacity-50 border-green-300' 
+          : 'bg-white bg-opacity-50 border-gray-200'
+      }`}>
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
             <Switch
               checked={todo.isDone}
-              onCheckedChange={() => handleToggle()}
-              className="data-[state=checked]:bg-[#a6e3a1]"
+              onCheckedChange={handleToggle}
+              className="data-[state=checked]:bg-green-500"
             />
-            <span className="text-[#cdd6f4]">
-              {todo.isDone ? 'Completed' : 'Pending'}
+            <span className={`text-lg ${todo.isDone ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+              {todo.title}
             </span>
           </div>
-        </CardContent>
-        <CardFooter>
           <Button
-            variant="destructive"
+            variant="ghost"
             size="sm"
-            onClick={() => handleDelete()}
-            className="bg-[#f38ba8] text-[#1e1e2e] hover:bg-[#eba0ac]"
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700 hover:bg-red-100"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            <Trash2 className="w-5 h-5" />
           </Button>
-        </CardFooter>
+        </div>
       </Card>
     );
 };

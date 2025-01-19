@@ -4,6 +4,8 @@ import TodoForm from '@/components/TodoForm';
 import LoginForm from '@/components/LoginForm';
 import { getTodos, Todo } from '@/services/todoApi';
 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+
 export default function App() {
     const [todos, setTodos] = useState<Todo[]>([]);
 
@@ -32,19 +34,34 @@ export default function App() {
     };
 
     return (
-        <div className="bg-[#1e1e2e] min-h-screen text-[#cdd6f4]">
-            <header>
+        <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-md mx-auto bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-white text-center">Todo App</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!token ? (
+              <div className="text-center">
+                <CardDescription className="text-lg text-gray-300 mb-6">
+                  Welcome to the Todo App! This application helps you manage your tasks efficiently. 
+                  Please log in to start creating and managing your todos.
+                </CardDescription>
                 <LoginForm />
-                <h1 className="text-3xl font-bold mb-4">Todo List</h1>
+              </div>
+            ) : (
+              <>
+                <LoginForm />
                 <TodoForm onAddTodo={handleAddTodo} />
                 <TodoList
-                    todos={todos}
-                    token={token}
-                    onDeleteTodo={handleDeleteTodo}
-                    onUpdateTodo={handleUpdateTodo}
+                  todos={todos}
+                  token={token}
+                  onDeleteTodo={handleDeleteTodo}
+                  onUpdateTodo={handleUpdateTodo}
                 />
-            </header>
-
-        </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     );
 }
