@@ -104,6 +104,31 @@ app.MapPost("/auth/login",
     }
 );
 
+// TODO: find a way to return token after register
+app.MapPost("/auth/register", async (UserDto userDto, AppDbContext db) => {
+
+        // check availability
+        if (await db.Users.AnyAsync(u => u.Username == userDto.Username)){
+            return Results.BadRequest("Username is already taken.");
+        };
+
+        // TODO: add hashing algos
+        var hashedPassword = userDto.Password;
+
+        var newUser = new User{
+            Username = userDto.Username,
+            PasswordHash = hashedPassword
+        };
+
+        // save to db
+        db.Users.Add(newUser);
+        await db.SaveChangesAsync();
+
+        return Results.Ok("User registered successfully.");
+
+    }
+);
+
 // seede the database with some user data
 app.MapGet("/seed", async (AppDbContext db) =>
 {
@@ -145,6 +170,11 @@ app.MapGet("/seed", async (AppDbContext db) =>
         return Results.Ok("Database seeded with users and their todos.");
     }
     return Results.Ok("Database already seeded.");
+});
+
+// temporary route to show users MUST DELETE IN PRODUCTION
+app.MapGet("/users", async (AppDbContext db) => {
+    return await db.Users.ToListAsync();
 });
 
 // main routes

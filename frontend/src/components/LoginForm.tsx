@@ -36,18 +36,17 @@ const LoginForm = () => {
         alert("Logged out");
     };
 
+    // TODO: find a way to login user after registration
     const handleRegister = async (e : React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setError("");
     
         try {
-          const response = await axios.post("http://localhost:5182/auth/register", {
+          await axios.post("http://localhost:5182/auth/register", {
             username,
             password,
           });
           
-          // Store the token in localStorage or sessionStorage
-          login(response.data.token);
           alert("Register successful!");
         } catch {
           setError("Not yet implemented");
