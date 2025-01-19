@@ -8,7 +8,7 @@ namespace backend.Entities
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
 
-       // public ICollection<TodoItem> Todos { get; set; } = new List<TodoItem>();
+       public ICollection<TodoItem> Todos { get; set; } = new List<TodoItem>();
     }
 
 } 

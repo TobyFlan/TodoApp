@@ -86,6 +86,7 @@ app.MapPost("/auth/login",
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim("UserId", user.Id.ToString()),
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             Issuer = issuer,
@@ -104,35 +105,78 @@ app.MapPost("/auth/login",
 );
 
 // seede the database with some user data
-app.MapGet("/seed", async (AppDbContext db) => {
-    db.Users.Add(new User { Username = "admin", PasswordHash = "admin" });
-    await db.SaveChangesAsync();
-    return Results.Ok("Database seeded");
-});
+app.MapGet("/seed", async (AppDbContext db) =>
+{
+    if (!db.Users.Any())
+    {
+        // Add User 1
+        var user1 = new User
+        {
+            Username = "user1",
+            PasswordHash = "password1" // Use hashed passwords in production
+        };
+        db.Users.Add(user1);
+        await db.SaveChangesAsync();
 
+        // Add Todos for User 1
+        db.Todos.AddRange(
+            new TodoItem { Title = "User1 Todo 1", IsDone = false, UserId = user1.Id },
+            new TodoItem { Title = "User1 Todo 2", IsDone = true, UserId = user1.Id }
+        );
+
+        // Add User 2
+        var user2 = new User
+        {
+            Username = "user2",
+            PasswordHash = "password2" // Use hashed passwords in production
+        };
+        db.Users.Add(user2);
+        await db.SaveChangesAsync();
+
+        // Add Todos for User 2
+        db.Todos.AddRange(
+            new TodoItem { Title = "User2 Todo 1", IsDone = false, UserId = user2.Id },
+            new TodoItem { Title = "User2 Todo 2", IsDone = true, UserId = user2.Id }
+        );
+
+        // Save all changes to the database
+        await db.SaveChangesAsync();
+
+        return Results.Ok("Database seeded with users and their todos.");
+    }
+    return Results.Ok("Database already seeded.");
+});
 
 // main routes
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/todos", async (AppDbContext db) => await db.Todos.ToListAsync());
+app.MapGet("/todos", [Authorize] async (HttpContext httpContext, AppDbContext db) => {
+    var userId = int.Parse(httpContext.User.FindFirstValue("UserId"));
+    return await db.Todos.Where(t => t.UserId == userId).ToListAsync();
+});
 
-app.MapGet("/todos/{id}", async (int id, AppDbContext db) => {
+app.MapGet("/todos/{id}", [Authorize] async (int id, HttpContext httpContext, AppDbContext db) => {
+    
+    var userId = int.Parse(httpContext.User.FindFirstValue("UserId"));
     var todo = await db.Todos.FindAsync(id);
-    if (todo is null) return Results.NotFound();
+    if (todo is null || todo.UserId != userId) return Results.NotFound();
     
     return Results.Ok(todo);
 });
 
-app.MapPost("/todos", async (TodoItem todo, AppDbContext db) => {
+app.MapPost("/todos", [Authorize] async (TodoItem todo, HttpContext httpContext, AppDbContext db) => {
+    var userId = int.Parse(httpContext.User.FindFirstValue("UserId"));
+    todo.UserId = userId;
     todo.Id = db.Todos.Max(t => t.Id) + 1;
     db.Todos.Add(todo);
     await db.SaveChangesAsync();
     return Results.Created($"/todos/{todo.Id}", todo);
 });
 
-app.MapPut("/todos/{id}", async (int id, TodoItem inputTodo, AppDbContext db) => {
+app.MapPut("/todos/{id}", [Authorize] async (int id, TodoItem inputTodo, HttpContext httpContext, AppDbContext db) => {
+    var userId = int.Parse(httpContext.User.FindFirstValue("UserId"));
     var todo = await db.Todos.FindAsync(id);
-    if (todo is null) return Results.NotFound();
+    if (todo is null || todo.UserId != userId) return Results.NotFound();
 
     todo.Title = string.IsNullOrEmpty(inputTodo.Title) ? todo.Title : inputTodo.Title;
     todo.IsDone = inputTodo.IsDone;
@@ -141,9 +185,10 @@ app.MapPut("/todos/{id}", async (int id, TodoItem inputTodo, AppDbContext db) =>
     return Results.Ok(todo);
 });
 
-app.MapDelete("/todos/{id}", async (int id, AppDbContext db) => {
+app.MapDelete("/todos/{id}", [Authorize] async (int id, HttpContext httpContext, AppDbContext db) => {
+    var userId = int.Parse(httpContext.User.FindFirstValue("UserId"));
     var todo = await db.Todos.FindAsync(id);
-    if (todo is null) return Results.NotFound();
+    if (todo is null || todo.UserId != userId) return Results.NotFound();
 
     db.Todos.Remove(todo);
     await db.SaveChangesAsync();
@@ -151,8 +196,8 @@ app.MapDelete("/todos/{id}", async (int id, AppDbContext db) => {
 });
 
 // auth dev test route
-app.MapGet("/jwt/test", () => {
+app.MapGet("/jwt/test", [Authorize] () => {
     return Results.Ok("You are authorized");
-}).RequireAuthorization();
+});
 
 app.Run();

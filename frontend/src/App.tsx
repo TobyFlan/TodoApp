@@ -2,19 +2,20 @@ import { useState, useEffect } from 'react';
 import TodoList from '@/components/TodoList';
 import TodoForm from '@/components/TodoForm';
 import LoginForm from '@/components/LoginForm';
-import ProtectedButton from '@/components/ProtectedTest';
 import { getTodos, Todo } from '@/services/todoApi';
 
 export default function App() {
     const [todos, setTodos] = useState<Todo[]>([]);
 
+    const token = localStorage.getItem("token");
+
     useEffect(() => {
         const fetchTodos = async () => {
-            const data = await getTodos();
+            const data = await getTodos(token);
             setTodos(data);
         };
         fetchTodos();
-    }, []);
+    }, [token]);
 
     const handleAddTodo = (newTodo: Todo) => {
         setTodos((prevTodos) => [...prevTodos, newTodo]);
@@ -38,12 +39,12 @@ export default function App() {
                 <TodoForm onAddTodo={handleAddTodo} />
                 <TodoList
                     todos={todos}
+                    token={token}
                     onDeleteTodo={handleDeleteTodo}
                     onUpdateTodo={handleUpdateTodo}
                 />
             </header>
 
-            <ProtectedButton />
         </div>
     );
 }

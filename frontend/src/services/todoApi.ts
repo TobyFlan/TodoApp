@@ -9,9 +9,13 @@ interface Todo {
 }
 
 // get all todos
-const getTodos = async () => {
+const getTodos = async (token : string | null) => {
     try {
-        const response = await axios.get(`${BASE_URL}/todos`);
+        const response = await axios.get(`${BASE_URL}/todos`, {
+            headers: {
+                Authorization: `bearer ${token}`,
+            },
+        });
         return response.data;
     }
     catch (error) {
@@ -20,9 +24,13 @@ const getTodos = async () => {
 };
 
 // get todo by id
-const getTodo = async (id: number) => {
+const getTodo = async (id: number, token: string | null) => {
     try {
-        const response = await axios.get(`${BASE_URL}/todos/${id}`);
+        const response = await axios.get(`${BASE_URL}/todos/${id}`, {
+            headers: {
+                Authorization: `bearer ${token}`,
+            },
+        });
         return response.data;
     }
     catch (error) {
@@ -31,9 +39,13 @@ const getTodo = async (id: number) => {
 };
 
 // create todo
-const createTodo = async (todo: Todo) => {
+const createTodo = async (todo: Todo, token : string | null) => {
     try {
-        const response = await axios.post(`${BASE_URL}/todos`, todo);
+        const response = await axios.post(`${BASE_URL}/todos`, todo, {
+            headers: {
+                Authorization: `bearer ${token}`,
+            },
+        });
         return response.data;
     }
     catch (error) {
@@ -42,9 +54,13 @@ const createTodo = async (todo: Todo) => {
 };
 
 // update todo
-const updateTodo = async (id: number, todo: Todo) => {
+const updateTodo = async (id: number, todo: Todo, token : string | null) => {
     try {
-        const response = await axios.put(`${BASE_URL}/todos/${id}`, todo);
+        const response = await axios.put(`${BASE_URL}/todos/${id}`, todo, {
+            headers: {
+                Authorization: `bearer ${token}`,
+            },
+        });
         return response.data;
     }
     catch (error) {
@@ -53,9 +69,13 @@ const updateTodo = async (id: number, todo: Todo) => {
 };
 
 // delete todo
-const deleteTodo = async (id: number) => {
+const deleteTodo = async (id: number, token : string | null) => {
     try {
-        const response = await axios.delete(`${BASE_URL}/todos/${id}`);
+        const response = await axios.delete(`${BASE_URL}/todos/${id}`, {
+            headers: {
+                Authorization: `bearer ${token}`,
+            }
+        });
         return response.data;
     }
     catch (error) {

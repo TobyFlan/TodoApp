@@ -7,45 +7,58 @@ import { deleteTodo, updateTodo } from '@/services/todoApi';
 
 const TodoList = ({
     todos,
+    token,
     onDeleteTodo,
     onUpdateTodo,
 }: {
     todos: Todo[];
+    token: string | null;
     onDeleteTodo: (id: number) => void;
     onUpdateTodo: (id: number, updatedTodo: Todo) => void;
 }) => {
+
+
     return (
-        <div className="container mx-auto p-4">
-            {todos.map((todo) => (
-                <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                    onDelete={onDeleteTodo}
-                    onUpdate={onUpdateTodo}
-                />
-            ))}
-        </div>
+        <>
+            {todos ? (
+                <div className="container mx-auto p-4">
+                    {todos.map((todo) => (
+                        <TodoItem
+                            key={todo.id}
+                            todo={todo}
+                            onDelete={onDeleteTodo}
+                            onUpdate={onUpdateTodo}
+                            token={token}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center text-[#cdd6f4]">No todos found</div>
+            )}
+        </>
     );
 };
 
 const TodoItem = ({
     todo,
+    token,
     onDelete,
     onUpdate,
 }: {
     todo: Todo;
+    token: string | null;
     onDelete: (id: number) => void;
     onUpdate: (id: number, updatedTodo: Todo) => void;
 }) => {
     const handleToggle = async () => {
         const newStatus = !todo.isDone;
         const updatedTodo = { ...todo, isDone: newStatus };
-        await updateTodo(todo.id, updatedTodo);
+        await updateTodo(todo.id, updatedTodo, token);
         onUpdate(todo.id, updatedTodo);
     };
 
     const handleDelete = async () => {
-        await deleteTodo(todo.id);
+        await deleteTodo(todo.id, token);
         onDelete(todo.id);
     };
 
