@@ -76,7 +76,9 @@ app.MapPost("/auth/login",
         var user = await db.Users.SingleOrDefaultAsync(u => u.Username == userDto.Username);
 
         // need to hash the password in the future
-        if (user is null || user.PasswordHash != userDto.Password) return Results.Unauthorized();
+        if (user is null || !BCrypt.Net.BCrypt.Verify(userDto.Password, user.PasswordHash)){
+            return Results.Unauthorized();
+        }
 
         var issuer = builder.Configuration["Jwt:Issuer"];
         var audience = builder.Configuration["Jwt:Audience"];
@@ -99,8 +101,6 @@ app.MapPost("/auth/login",
 
         return Results.Ok(new { Token = tokenHandler.WriteToken(token) });
 
-
-        return Results.Unauthorized();
     }
 );
 
@@ -113,7 +113,7 @@ app.MapPost("/auth/register", async (UserDto userDto, AppDbContext db) => {
         };
 
         // TODO: add hashing algos
-        var hashedPassword = userDto.Password;
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
 
         var newUser = new User{
             Username = userDto.Username,
@@ -138,7 +138,7 @@ app.MapGet("/seed", async (AppDbContext db) =>
         var user1 = new User
         {
             Username = "user1",
-            PasswordHash = "password1" // Use hashed passwords in production
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password1")
         };
         db.Users.Add(user1);
         await db.SaveChangesAsync();
@@ -153,7 +153,7 @@ app.MapGet("/seed", async (AppDbContext db) =>
         var user2 = new User
         {
             Username = "user2",
-            PasswordHash = "password2" // Use hashed passwords in production
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password2")
         };
         db.Users.Add(user2);
         await db.SaveChangesAsync();
@@ -170,11 +170,6 @@ app.MapGet("/seed", async (AppDbContext db) =>
         return Results.Ok("Database seeded with users and their todos.");
     }
     return Results.Ok("Database already seeded.");
-});
-
-// temporary route to show users MUST DELETE IN PRODUCTION
-app.MapGet("/users", async (AppDbContext db) => {
-    return await db.Users.ToListAsync();
 });
 
 // main routes
@@ -223,11 +218,6 @@ app.MapDelete("/todos/{id}", [Authorize] async (int id, HttpContext httpContext,
     db.Todos.Remove(todo);
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
-
-// auth dev test route
-app.MapGet("/jwt/test", [Authorize] () => {
-    return Results.Ok("You are authorized");
 });
 
 app.Run();

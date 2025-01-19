@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { useAuth } from '@/components/AuthContext';
 
+import { toast } from 'react-hot-toast';
+
 const LoginForm = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -25,7 +27,7 @@ const LoginForm = () => {
         
         // Store the token in localStorage or sessionStorage
         login(response.data.token);
-        alert("Login successful!");
+        toast.success("Login successful!");
       } catch {
         setError("Invalid username or password");
       }
@@ -33,7 +35,9 @@ const LoginForm = () => {
 
     const handleLogout = () => {
         logout();
-        alert("Logged out");
+        toast('Logged out!', {
+          icon: '👋',
+        });
     };
 
     // TODO: find a way to login user after registration
@@ -47,9 +51,9 @@ const LoginForm = () => {
             password,
           });
           
-          alert("Register successful!");
+          toast.success("Register successful!");
         } catch {
-          setError("Not yet implemented");
+          setError("Username already exists");
         }
     };
     
@@ -75,7 +79,7 @@ const LoginForm = () => {
               <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white">
                 Login
               </Button>
-              <Button type="button" onClick={handleRegister} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Button type="button" onClick={handleRegister} className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={username.trim() === '' || password.trim() === ''}>
                 Register
               </Button>
             </div>
