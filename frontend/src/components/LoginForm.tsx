@@ -14,26 +14,44 @@ const LoginForm = () => {
     const { isAuthenticated, login, logout } = useAuth();
 
     const handleLogin = async (e : React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setError("");
+  
+      try {
+        const response = await axios.post("http://localhost:5182/auth/login", {
+          username,
+          password,
+        });
+        
+        // Store the token in localStorage or sessionStorage
+        login(response.data.token);
+        alert("Login successful!");
+      } catch {
+        setError("Invalid username or password");
+      }
+    };
+
+    const handleLogout = () => {
+        logout();
+        alert("Logged out");
+    };
+
+    const handleRegister = async (e : React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setError("");
     
         try {
-          const response = await axios.post("http://localhost:5182/auth/login", {
+          const response = await axios.post("http://localhost:5182/auth/register", {
             username,
             password,
           });
           
           // Store the token in localStorage or sessionStorage
           login(response.data.token);
-          alert("Login successful!");
+          alert("Register successful!");
         } catch {
-          setError("Invalid username or password");
+          setError("Not yet implemented");
         }
-      };
-
-    const handleLogout = () => {
-        logout();
-        alert("Logged out");
     };
     
       return (
@@ -54,9 +72,14 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="bg-white bg-opacity-20 border-none focus:ring-2 focus:ring-purple-400 text-gray-800 placeholder-gray-300"
             />
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-              Login
-            </Button>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                Login
+              </Button>
+              <Button type="button" onClick={handleRegister} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Register
+              </Button>
+            </div>
             {error.length != 0 && (
               <Alert variant="destructive" className="bg-red-500 text-white">
                 <AlertDescription>{error}</AlertDescription>
